@@ -15,6 +15,9 @@ export class Player {
 
     // Method to make a move
     makeMove(coordinates) {
+      console.log('Making move:', coordinates);
+      console.log('Before receiveAttack - Game state:', this.gameboard);
+
       if (this.isHuman) {
         // For human player, coordinates are provided as input
         this.gameboard.receiveAttack(coordinates);
@@ -23,6 +26,9 @@ export class Player {
         const randomCoords = this.genRandomCoords();
         this.gameboard.receiveAttack(randomCoords);
       }
+
+      console.log('After receiveAttack - Game state:', this.gameboard);
+
     }
 
     // Helper function for computer player to generate random legal coordinates

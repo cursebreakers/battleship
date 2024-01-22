@@ -15,29 +15,18 @@ export class GameState {
 
   initGame() {
       console.log('Initializing...')
-      // Set up players and gameboards
-      this.player1 = new Player(true);
-      this.player2 = new Player(false);
-      this.currentPlayer = this.player1;
-      this.turnNumber = 1;
-
     // Initialize ships for each player using genFleet from the Ship module
     this.player1.gameboard.placeShips(genFleet());
     this.player2.gameboard.placeShips(genFleet());
 
-    // Log player boards and ships
-    console.log('Player 1 Board:', this.player1.gameboard.playerGrid);
-    console.log('Player 1 Ships:', this.player1.gameboard.ships);
-
-    console.log('Player 2 Board:', this.player2.gameboard.playerGrid);
-    console.log('Player 2 Ships:', this.player2.gameboard.ships);
-   
     // Load the UI
-    loadUI();
+    loadUI(this);
+    console.log('initGame: ' + this);
   }
 
   // Method to take user input for attacking
   takeUserInput(coordinates) {
+    console.log('Taking user input...');
     // Delegate input handling to the current player
     this.currentPlayer.takeUserInput(coordinates);
 

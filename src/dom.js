@@ -5,10 +5,13 @@ import { GameState } from "./state"
 
 // via gameTray div, render:
 
-export function loadUI() {
+export function loadUI(gameState) {
     console.log('Loading UI...');
+    console.log('Game state at load:', gameState);
 
     const gameTray = document.getElementById('gameTray');
+    const initBtn = document.getElementById('initBtn');
+    initBtn.innerHTML = 'Reset'
 
     // Scoreboard
     const scoreBoard = document.createElement('div');
@@ -45,7 +48,6 @@ export function loadUI() {
     gameTray.appendChild(action);
 
     // Initialize game state and boards
-    const gameState = new GameState();
     const playerGameboard = gameState.player1.gameboard;
     const opponentGameboard = gameState.player2.gameboard;
 
@@ -55,7 +57,7 @@ export function loadUI() {
 }
 
 // Helper function to render the game board
-export function renderBoard(gameboard, boardElement) {
+export function renderBoard(gameboard, boardElement, gameState) {
     boardElement.innerHTML = ''; // Clear existing content
 
     // Create the grid
@@ -95,7 +97,7 @@ export function renderBoard(gameboard, boardElement) {
             }
 
             // Add event listener for clicking on the cell (for attack input)
-            cell.addEventListener('click', () => handleCellClick(coordinates));
+            cell.addEventListener('click', () => handleCellClick(coordinates, gameState));
 
             row.appendChild(cell);
         }
@@ -108,34 +110,18 @@ export function renderBoard(gameboard, boardElement) {
 }
 
 // Event handler for cell click (attack input)
-function handleCellClick(coordinates) {
+function handleCellClick(coordinates, gameState) {
     console.log('Cell clicked:', coordinates);
-    // Update the UI
+    console.log('Game state before takeUserInput:', gameState);
+    console.log('Current player:', gameState.currentPlayer);
 
     // Calls takeUserInput to handle the attack in the game state
     gameState.takeUserInput(coordinates);
+    
+    console.log('Game state after takeUserInput:', gameState);
 
     // Update the UI with the latest game state
     renderBoard(gameState.player1.gameboard, document.getElementById('playerBoard'));
     renderBoard(gameState.player2.gameboard, document.getElementById('opponentBoard'));
 }
 
-
-//  Scoreboard:
-    // Player names, total hits and misses, remaining ships and health
-    // Current turn number and player name
-    // Scoreboard/gameboards update according to game action
-
-// 2x 11x11 grids:
-// With letters/numbers on x/y axis
-    // Water cells are auqua
-    // Ship cells are dark grey
-    // Hit ships are red
-    // miss/hit-water cells are black
-    // cell clicking for attack input
-
-    // Opponent board:
-    // shows no ships unless hit, then only the hit square shows
-
-    // Player board:
-    // shows own ship locations to player

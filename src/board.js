@@ -68,12 +68,15 @@ export default class Gameboard {
   
     // Method to receive an attack
     receiveAttack(coordinates) {
+      console.log('Receiving attack:', coordinates);
       // Extract row and column indices from the attack coordinates
       const rowIndex = coordinates.charCodeAt(0) - 'A'.charCodeAt(0);
       const colIndex = parseInt(coordinates.slice(1), 10) - 1;
 
       // Check if there is a ship at the attacked coordinates
       const cellContent = this.playerGrid[rowIndex][colIndex].content;
+
+      console.log('Cell content:', cellContent);
 
       if (cellContent) {
         // Ship is hit

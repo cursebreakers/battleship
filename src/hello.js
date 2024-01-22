@@ -21,8 +21,9 @@ export function hello(message) {
 
     const gameState = new GameState();
 
-    initBtn.addEventListener('click', function() {
-        gameState.initGame();
+    initBtn.addEventListener('click', () => {
+        gameState.initGame(gameState);
+        console.log('Game state at init:', gameState);
     });
 
     console.log('Waiting...');
