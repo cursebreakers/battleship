@@ -19,11 +19,9 @@ export function hello(message) {
 
     gameTray.appendChild(initBtn)
 
-    const gameState = new GameState();
-
     initBtn.addEventListener('click', () => {
+        const gameState = new GameState();
         gameState.initGame(gameState);
-        console.log('Game state at init:', gameState);
     });
 
     console.log('Waiting...');

@@ -3,7 +3,7 @@
 import { Player } from "./player";
 import { Gameboard } from "./board";
 import { genFleet } from "./ship";
-import{ loadUI } from "./dom"
+import { loadUI } from "./dom";
 
 export class GameState {
   constructor() {
@@ -13,22 +13,24 @@ export class GameState {
     this.turnNumber = 1; // Initialize turn number
   }
 
-  initGame() {
+  initGame(gameState) {
       console.log('Initializing...')
     // Initialize ships for each player using genFleet from the Ship module
     this.player1.gameboard.placeShips(genFleet());
     this.player2.gameboard.placeShips(genFleet());
 
     // Load the UI
-    loadUI(this);
-    console.log('initGame: ' + this);
+    console.log('initGame: gameState created. ', this);
+    loadUI(gameState);
   }
 
   // Method to take user input for attacking
-  takeUserInput(coordinates) {
+  takeUserInput(coordinates, gameState) {
     console.log('Taking user input...');
+    console.log('Game state upon input:', gameState); // Log the entire gameState object
+    console.log('Current player upon input:', gameState.currentPlayer);
     // Delegate input handling to the current player
-    this.currentPlayer.takeUserInput(coordinates);
+    this.currentPlayer.makeMove(coordinates);
 
     // Check if the game is over
     if (this.checkGameOver()) {
@@ -37,6 +39,8 @@ export class GameState {
     } else {
       // Switch to the next player for the next turn
       this.switchPlayer();
+      console.log('Current player upon switch:', gameState.currentPlayer);
+
       this.turnNumber++;
     }
   }

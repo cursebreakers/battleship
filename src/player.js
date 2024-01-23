@@ -20,11 +20,13 @@ export class Player {
 
       if (this.isHuman) {
         // For human player, coordinates are provided as input
-        this.gameboard.receiveAttack(coordinates);
+        console.log('Human player attacking. Gameboard:', this.gameboard);
+        this.gameboard.receiveAttack(coordinates, true);
       } else {
         // For computer player, generate random legal coordinates
+        console.log('Computer player attacking. Gameboard:', this.gameboard);
         const randomCoords = this.genRandomCoords();
-        this.gameboard.receiveAttack(randomCoords);
+        this.gameboard.receiveAttack(randomCoords, false);
       }
 
       console.log('After receiveAttack - Game state:', this.gameboard);

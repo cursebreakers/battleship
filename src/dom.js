@@ -2,12 +2,13 @@
 
 import { Gameboard } from "./board"
 import { GameState } from "./state"
+import { Ship } from "./ship";
 
 // via gameTray div, render:
 
 export function loadUI(gameState) {
     console.log('Loading UI...');
-    console.log('Game state at load:', gameState);
+    console.log('Game state at UI load:', gameState);
 
     const gameTray = document.getElementById('gameTray');
     const initBtn = document.getElementById('initBtn');
@@ -15,11 +16,12 @@ export function loadUI(gameState) {
 
     // Scoreboard
     const scoreBoard = document.createElement('div');
+    scoreBoard.id = "scoreBoard";
     scoreBoard.innerHTML = `
-        <h3>Player 1: Hits - Misses - Remaining Ships</h3>
-        <h3>Computer: Hits - Misses - Remaining Ships</h3>
-        <h3>Turn: </h3>
-    `;
+        <h3>Player 1: ${gameState.player1.gameboard.getRemainingShips()} Ships Remaining</h3>
+        <h3>Computer: ${gameState.player2.gameboard.getRemainingShips()} Ships Remaining</h3>
+        <div id="turnInfo"><h3>Turn: ${gameState.turnNumber}, ${gameState.currentPlayer.isHuman ? 'Human' : 'Computer'}</h3></div>
+        `;
 
     // Game action area with player and opponent boards
     const action = document.createElement('div');
@@ -52,17 +54,15 @@ export function loadUI(gameState) {
     const opponentGameboard = gameState.player2.gameboard;
 
     // Render player and opponent boards
-    renderBoard(playerGameboard, playerBoard);
-    renderBoard(opponentGameboard, opponentBoard);
+    renderBoard(playerGameboard, playerBoard, gameState);
+    renderBoard(opponentGameboard, opponentBoard, gameState);
 }
 
 // Helper function to render the game board
 export function renderBoard(gameboard, boardElement, gameState) {
     boardElement.innerHTML = ''; // Clear existing content
-
     // Create the grid
     const grid = document.createElement('table');
-
     // Add letters for the x-axis
     const xAxisRow = document.createElement('tr');
     xAxisRow.appendChild(document.createElement('th')); // Empty corner cell
@@ -72,7 +72,6 @@ export function renderBoard(gameboard, boardElement, gameState) {
         xAxisRow.appendChild(cell);
     }
     grid.appendChild(xAxisRow);
-
     // Add rows and cells for the y-axis
     for (let i = 0; i < 10; i++) {
         const row = document.createElement('tr');
@@ -83,8 +82,8 @@ export function renderBoard(gameboard, boardElement, gameState) {
         for (let j = 0; j < 10; j++) {
             const cell = document.createElement('td');
             const coordinates = `${String.fromCharCode('A'.charCodeAt(0) + i)}${j + 1}`;
+            
             const content = gameboard.playerGrid[i][j].content;
-
             // Set cell color based on content
             if (content === null) {
                 cell.classList.add('water-cell');
@@ -97,7 +96,9 @@ export function renderBoard(gameboard, boardElement, gameState) {
             }
 
             // Add event listener for clicking on the cell (for attack input)
-            cell.addEventListener('click', () => handleCellClick(coordinates, gameState));
+            cell.addEventListener('click', function () {
+                handleCellClick(coordinates, gameState);
+            });
 
             row.appendChild(cell);
         }
@@ -112,16 +113,22 @@ export function renderBoard(gameboard, boardElement, gameState) {
 // Event handler for cell click (attack input)
 function handleCellClick(coordinates, gameState) {
     console.log('Cell clicked:', coordinates);
-    console.log('Game state before takeUserInput:', gameState);
-    console.log('Current player:', gameState.currentPlayer);
-
     // Calls takeUserInput to handle the attack in the game state
-    gameState.takeUserInput(coordinates);
-    
-    console.log('Game state after takeUserInput:', gameState);
+    gameState.takeUserInput(coordinates, gameState); 
 
     // Update the UI with the latest game state
     renderBoard(gameState.player1.gameboard, document.getElementById('playerBoard'));
     renderBoard(gameState.player2.gameboard, document.getElementById('opponentBoard'));
+
+    updateScoreboard(gameState);
+    console.log('Updated gameState:', gameState);
 }
 
+function updateScoreboard(gameState) {
+    const scoreBoard = document.querySelector('#scoreBoard');
+    scoreBoard.innerHTML = `
+        <h3>Player 1: ${gameState.player1.gameboard.getRemainingShips()} Ships Remaining</h3>
+        <h3>Computer: ${gameState.player2.gameboard.getRemainingShips()} Ships Remaining</h3>
+        <div id="turnInfo"><h3>Turn: ${gameState.turnNumber}, ${gameState.currentPlayer.isHuman ? 'Human' : 'Computer'}</h3></div>
+        `;
+}
