@@ -20,26 +20,41 @@ export class Player {
       this.turnNumber++;
 
       if (this.isHuman) {
-        // For human player, coordinates are provided as input
         console.log('Human player attacking...', coordinates);
         gameState.player2.gameboard.receiveAttack(coordinates, gameState, true);
         gameState.player1.gameboard.receiveAttack(coordinates, gameState, true);
       } else {
-        // For computer player, generate random legal coordinates
-        const coordinates = this.genRandomCoords();
-        console.log('Computer player attacking...', coordinates);
+        console.log('Computer player thinking...');
+        const coordinates = this.genCoords(gameState);
+   
         
+        console.log('Computer player attacking...', coordinates);
         gameState.player1.gameboard.receiveAttack(coordinates, gameState, false);
         gameState.player2.gameboard.receiveAttack(coordinates, gameState, false); // Update player1's game board
       }
     }
 
     // Helper function for computer player to generate random legal coordinates
-    genRandomCoords() {
+    genCoords(gameState) {
       const alphabet = 'ABCDEFGHIJ';
-      const randomRow = alphabet[Math.floor(Math.random() * 10)];
-      const randomCol = Math.floor(Math.random() * 10) + 1;
-      const coordinates = `${randomRow}${randomCol}`;
+      const allCoords = [];
+
+      gameState.usedCoordinates = gameState.usedCoordinates || [];
+
+      for (let row of alphabet) {
+        for (let col = 1; col <= 10; col++) {
+          allCoords.push(`${row}${col}`);
+        }
+      }
+
+      const availableCoords = allCoords.filter(coord => !gameState.usedCoordinates.includes(coord));
+
+      if (availableCoords.length === 0) {
+        gameState.usedCoordinates = [];
+      }
+
+      const randomIndex = Math.floor(Math.random() * availableCoords.length);
+      const coordinates = availableCoords[randomIndex];
 
       return coordinates;
     }

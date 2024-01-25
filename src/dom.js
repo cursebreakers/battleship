@@ -9,7 +9,6 @@ import { Ship } from "./ship";
 
 export function loadUI(gameState) {
     console.log('Loading UI...');
-
     initBtn.classList.add('hidden');
 
     // Scoreboard
@@ -27,6 +26,8 @@ export function loadUI(gameState) {
     const playerTitle = document.createElement('h4');
     const opponentBoard = document.createElement('div');
     const oppTitle = document.createElement('h4');
+    const scramBtn = document.createElement('button');
+    const accFlt = document.createElement('button');
 
     // Set up player and opponent boards
     action.id = 'gameAction';
@@ -34,15 +35,31 @@ export function loadUI(gameState) {
     playerTitle.id = 'playerTitle';
     opponentBoard.id = 'opponentBoard';
     oppTitle.id = 'oppTitle';
+    scramBtn.id = "scramBtn";
+    accFlt.id = "accFlt";
 
-    playerTitle.innerHTML = 'Player'
-    oppTitle.innerHTML = 'Computer'
+    oppTitle.innerHTML = 'Computer';
+    playerTitle.innerHTML = 'Player';
+    scramBtn.innerHTML = 'Scramble Fleet';
+    accFlt.innerHTML = 'Start';
 
     // Add boards to the action area
     action.appendChild(oppTitle);
     action.appendChild(opponentBoard);
     action.appendChild(playerTitle);
+    action.appendChild(scramBtn);
+    action.appendChild(accFlt);
     action.appendChild(playerBoard);
+
+    scramBtn.addEventListener('click', () => {
+        gameState.player1.gameboard.scrambleFleet(); // No need to pass any number
+    });
+
+    accFlt.addEventListener('click',() => {
+        gameState.player1.gameboard.accFleet();
+        scramBtn.classList.add('hidden')
+        accFlt.classList.add('hidden')
+    });
 
     // Add elements to the game tray
     gameTray.appendChild(scoreBoard);
@@ -123,10 +140,10 @@ export function handleCellClick(coordinates, gameState) {
     renderBoard(opponentBoard, document.getElementById('opponentBoard'), gameState);
     renderBoard(playerBoard, document.getElementById('playerBoard'), gameState);
     
-    updateScoreboard(gameState);
+    updateScore(gameState);
 }
 
-export function updateScoreboard(gameState) {
+export function updateScore(gameState) {
     const scoreBoard = document.querySelector('#scoreBoard');
     scoreBoard.innerHTML = `
         <h3>Player 1: ${gameState.player1.gameboard.getRemainingShips()} Ships Remaining</h3>

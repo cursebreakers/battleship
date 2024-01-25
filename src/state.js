@@ -27,7 +27,6 @@ export class GameState {
 
   // Method to take user input for attacking
   takeUserInput(coordinates, gameState) {
-    console.log('Taking user input...');
     // Delegate input handling to the current player
     gameState.currentPlayer.makeMove(coordinates, gameState);
 
@@ -43,7 +42,7 @@ export class GameState {
       if (!gameState.currentPlayer.isHuman) {
           gameState.currentPlayer.makeMove(null, gameState);
           this.switchPlayer();
-          console.log('Player after switch:', gameState.currentPlayer);
+          console.log('Player after switch:', this.currentPlayer);
       }
     }
   }

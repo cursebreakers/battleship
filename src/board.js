@@ -68,6 +68,52 @@ export default class Gameboard {
         }
       });
     }
+
+    // Method to re-place ships randomly
+    scrambleFleet() {
+      console.log('Scrambling...')
+      alert('This feature is not yet available');
+      console.log('Scrambling failed.')
+
+    }
+
+    accFleet () {
+      console.log('Fleet accepted.')
+      alert('Player 1: Human - Begin!')
+    }
+    
+    // Helper method to get preset ship placements
+    preSets(presetNumber) {
+      switch (presetNumber) {
+        case 1:
+          return [
+            ['Carrier', ['I', 3], ['I', 4], ['I', 5], ['I', 6], ['I', 7]],
+            ['Battleship', ['G', 2], ['G', 3], ['G', 4], ['G', 5]],
+            ['Cruiser', ['C', 2], ['D', 2], ['E', 2]],
+            ['Submarine', ['B', 9], ['C', 9], ['D', 9]],
+            ['Destroyer', ['C', 6], ['C', 5]],
+          ];
+        case 2:
+          return [
+            ['Carrier', ['B', 9], ['C', 9], ['D', 9], ['E', 9], ['F', 9]],
+            ['Battleship', ['B', 2], ['B', 3], ['B', 4], ['B', 5]],
+            ['Cruiser', ['E', 3], ['E', 4], ['E', 5]],
+            ['Submarine', ['D', 4], ['D', 5], ['D', 6]],
+            ['Destroyer', ['H', 2], ['I', 2]],
+          ];
+        case 3:
+          return [
+            ['Carrier', ['A', 1], ['A', 2], ['A', 3], ['A', 4], ['A', 5]],
+            ['Battleship', ['C', 9], ['D', 9], ['E', 9], ['F', 9]],
+            ['Cruiser', ['D', 6], ['E', 6], ['F', 6]],
+            ['Submarine', ['D', 4], ['E', 4], ['F', 4]],
+            ['Destroyer', ['B', 7], ['C', 7]],
+          ];
+        default:
+          console.error('Invalid preset number');
+          return [];
+      }
+    }
   
     // Method to receive an attack
     receiveAttack(coordinates, gameState, isHuman) {   
