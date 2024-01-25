@@ -3,7 +3,8 @@
 import { Player } from "./player";
 import { Gameboard } from "./board";
 import { genFleet } from "./ship";
-import { loadUI } from "./dom";
+import { loadUI, renderBoard, updateScoreboard } from "./dom";
+
 
 export class GameState {
   constructor() {
@@ -27,34 +28,40 @@ export class GameState {
   // Method to take user input for attacking
   takeUserInput(coordinates, gameState) {
     console.log('Taking user input...');
-    console.log('Game state upon input:', gameState); // Log the entire gameState object
-
     // Delegate input handling to the current player
     gameState.currentPlayer.makeMove(coordinates, gameState);
 
     // Check if the game is over
-    if (this.checkGameOver()) {
+    if (this.checkGameOver(gameState)) {
       // Handle game over logic
       console.log('Game over!');
     } else {
       // Switch to the next player for the next turn
-      this.switchPlayer();
-      console.log('Updated gameState (turn change):', gameState);
-      console.log('Player after switch:', gameState.currentPlayer);
+      this.switchPlayer(gameState);
+      console.log('Player after switch:', gameState);
 
-      this.turnNumber++;
+      if (!gameState.currentPlayer.isHuman) {
+          gameState.currentPlayer.makeMove(null, gameState);
+          this.switchPlayer();
+          console.log('Player after switch:', gameState.currentPlayer);
+      }
     }
   }
 
   // Method to check if the game is over
-  checkGameOver() {
-    // Use the areAllShipsSunk function from the Gameboard module
-    return this.player1.gameboard.areAllShipsSunk() || this.player2.gameboard.areAllShipsSunk();
-  }
+  checkGameOver(gameState) {
+    const player1GameOver = gameState.player1.gameboard.areAllShipsSunk();
+    const player2GameOver = gameState.player2.gameboard.areAllShipsSunk();
+
+    console.log('Game Over Check - Player 1:', player1GameOver, 'Player 2:', player2GameOver);
+
+    return player1GameOver || player2GameOver;  }
 
   // Method to switch to the next player
-  switchPlayer() {
+  switchPlayer(gameState) {
     this.currentPlayer = this.currentPlayer === this.player1 ? this.player2 : this.player1;
+    this.turnNumber++;
+    console.log('Switching player...')
   }
 }
 

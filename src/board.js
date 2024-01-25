@@ -1,6 +1,7 @@
 // Gameboard module
 
 import { Ship, fleet, genFleet } from "./ship";
+import { Player } from "./player";
 
 // CLASS/factory for gameboard
 export default class Gameboard {
@@ -50,12 +51,12 @@ export default class Gameboard {
         ['Destroyer', 'E1']
       ];
   
-      shipCoords.forEach(([shipType, startCoords]) => {
+      shipCoords.forEach(([shipType, coordinates]) => {
         const ship = this.findShipByType(shipType);
   
         if (ship) {
-          const rowIndex = startCoords.charCodeAt(0) - 'A'.charCodeAt(0);
-          const colIndex = parseInt(startCoords.slice(1), 10) - 1;
+          const rowIndex = coordinates.charCodeAt(0) - 'A'.charCodeAt(0);
+          const colIndex = parseInt(coordinates.slice(1), 10) - 1;
   
           // Set the ship coordinates
           ship.coordinates = [];
@@ -69,60 +70,52 @@ export default class Gameboard {
     }
   
     // Method to receive an attack
-    receiveAttack(coordinates, gameState, isHuman) {
+    receiveAttack(coordinates, gameState, isHuman) {   
       // Extract row and column indices from the attack coordinates
       const rowIndex = coordinates.charCodeAt(0) - 'A'.charCodeAt(0);
       const colIndex = parseInt(coordinates.slice(1), 10) - 1;
-      
-      const attackerGameboard = isHuman ? gameState.player1.gameboard : gameState.player2.gameboard;
-      const targetGameboard = isHuman ? gameState.player2.gameboard : gameState.player1.gameboard;
-      
-      console.log('isHuman:', isHuman, 'Attacks from: ', attackerGameboard.enemyGrid);
-      console.log('Attack received at cell:', coordinates, targetGameboard.playerGrid);
+
+      // Which board is which player:
+      const targetBoard = isHuman ? gameState.player2.gameboard : gameState.player1.gameboard;
+      const playerBoard = isHuman ? gameState.player1.gameboard : gameState.player2.gameboard;
 
       // Check if there is a ship at the attacked coordinates
-      const cellContent = targetGameboard.playerGrid[rowIndex][colIndex].content;
-
+      const cellContent = targetBoard.playerGrid[rowIndex][colIndex].content;
+      const playerCell = playerBoard.enemyGrid[rowIndex][colIndex].content;
+      
+      console.log('isHuman:', isHuman, 'Attacks from: ', playerBoard.enemyGrid);
+      console.log('Attack received at cell:', coordinates, targetBoard.playerGrid);
       console.log('Cell content:', cellContent);
 
-      if (cellContent) {
-        // Ship is hit
-        const ship = this.findShipByType(cellContent);
-        ship.hit();
-        console.log('Ship: ', ship);
-        targetGameboard.playerGrid[rowIndex][colIndex].content = 'hit';
+      if (cellContent !== 'hit') {
+        if (cellContent) {
+          // Ship is hit
+          const ship = this.findShipByType(cellContent);
+          if (ship) {
+            ship.hit();
+            console.log('Ship hit: ', ship);
+            targetBoard.playerGrid[rowIndex][colIndex].content = 'hit';
+            playerBoard.enemyGrid[rowIndex][colIndex].content = 'hit';
 
-        if (ship.isSunk()) {
-          // Report that the ship has been sunk
-          console.log(`${ship.type} sunk!`);
+            if (ship.isSunk()) {
+              // Report that the ship has been sunk
+              console.log(`${ship.type} sunk!`);
+              console.log('Ships on the board:', this.ships);
+            }
+          } else {
+            console.log('No ship found at coordinates:', coordinates);
+          }
+          
+        } else {
+          // Record coordinates of missed shot
+          this.missedAttacks.push(coordinates);
+          playerBoard.enemyGrid[rowIndex][colIndex].content = 'miss';
+          targetBoard.playerGrid[rowIndex][colIndex].content = 'miss';
         }
-        
-      } else {
-        // Record coordinates of missed shot
-        this.missedAttacks.push(coordinates);
-        targetGameboard.playerGrid[rowIndex][colIndex].content = 'miss';
-      }
-
-      const attackerCellContent = attackerGameboard.enemyGrid[rowIndex][colIndex].content;
-
-      if (attackerCellContent) {
-        // Ship is hit on the player's grid
-        const attackerShip = targetGameboard.findShipByType(attackerCellContent);
-        attackerShip.hit();
-        attackerGameboard.enemyGrid[rowIndex][colIndex].content = 'hit';
-
-        if (attackerShip.isSunk()) {
-          // Report that the player's ship has been sunk
-          console.log(`${attackerShip.type} on attacker's grid sunk!`);
-        }
-      } else {
-        // Record coordinates of missed shot on the player's grid
-        this.missedAttacks.push(coordinates);
-        attackerGameboard.enemyGrid[rowIndex][colIndex].content = 'miss';
       }
 
       // Check if all ships have been sunk
-      if (targetGameboard.areAllShipsSunk()) {
+      if (targetBoard.areAllShipsSunk()) {
         // Report that all ships have been sunk
         console.log('All ships have been sunk! Game over.');
       }
@@ -139,14 +132,13 @@ export default class Gameboard {
       if (ship) {
         return ship;
       } else {
-        console.error(`Ship with type ${shipType} not found.`);
+        console.log(`Ship with type ${shipType} not found.`);
         return null; // or handle the error accordingly
       }
     }
-
+    
     // Helper function to check if all ships have been sunk
     areAllShipsSunk() {
-      const allShips = fleet.map(({ type, length }) => new Ship(type, length));
-      return allShips.every(ship => ship.isSunk());
-  }
+      return this.ships.every(ship => ship.sunk);
+    }
 }

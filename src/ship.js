@@ -6,11 +6,19 @@ export class Ship {
       this.type = type;
       this.length = length;
       this.hits = 0;
+      this.coordinates = 0;
+      this.sunk = false;
     }
   
     // hit() increases number of hits on ship:
     hit() {
       this.hits += 1;
+
+      // Check if the ship is sunk after each hit
+      if (this.isSunk()) {
+          this.sunk = true;
+          console.log(`${this.type} has been sunk!`);
+      }
     }
   
     // isSunk() calculates if ship is sunk based on length and number of hits received:

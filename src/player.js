@@ -15,19 +15,22 @@ export class Player {
 
     // Method to make a move
     makeMove(coordinates, gameState) {
-      console.log('Making move:', coordinates);
+      console.log('Making move...');
+
+      this.turnNumber++;
 
       if (this.isHuman) {
         // For human player, coordinates are provided as input
-        console.log('Human player attacking...', gameState);
+        console.log('Human player attacking...', coordinates);
         gameState.player2.gameboard.receiveAttack(coordinates, gameState, true);
         gameState.player1.gameboard.receiveAttack(coordinates, gameState, true);
       } else {
         // For computer player, generate random legal coordinates
-        console.log('Computer player attacking...', gameState);
-        const randomCoords = this.genRandomCoords();
-        gameState.player1.gameboard.receiveAttack(randomCoords, gameState, false);
-        gameState.player2.gameboard.receiveAttack(randomCoords, gameState, false); // Update player1's game board
+        const coordinates = this.genRandomCoords();
+        console.log('Computer player attacking...', coordinates);
+        
+        gameState.player1.gameboard.receiveAttack(coordinates, gameState, false);
+        gameState.player2.gameboard.receiveAttack(coordinates, gameState, false); // Update player1's game board
       }
     }
 
@@ -36,9 +39,9 @@ export class Player {
       const alphabet = 'ABCDEFGHIJ';
       const randomRow = alphabet[Math.floor(Math.random() * 10)];
       const randomCol = Math.floor(Math.random() * 10) + 1;
-      const randomCoords = `${randomRow}${randomCol}`;
+      const coordinates = `${randomRow}${randomCol}`;
 
-      return randomCoords;
+      return coordinates;
     }
   }
 

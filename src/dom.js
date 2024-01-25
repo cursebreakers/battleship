@@ -49,12 +49,12 @@ export function loadUI(gameState) {
     gameTray.appendChild(action);
 
     // Declare grid object data for UI
-    const opponentGameboard = gameState.player1.gameboard.enemyGrid;
-    const playerGameboard = gameState.player1.gameboard.playerGrid;
+    const opponentGrid = gameState.player1.gameboard.enemyGrid;
+    const playerGrid = gameState.player1.gameboard.playerGrid;
 
     // Render player and opponent boards
-    renderBoard(opponentGameboard, opponentBoard, gameState);
-    renderBoard(playerGameboard, playerBoard, gameState);
+    renderBoard(opponentGrid, opponentBoard, gameState);
+    renderBoard(playerGrid, playerBoard, gameState);
 }
 
 // Helper function to render the game board
@@ -91,7 +91,7 @@ export function renderBoard(gameboard, boardElement, gameState) {
                 cell.classList.add('hit-cell');
             } else if (content === 'miss') {
                 cell.classList.add('miss-cell');
-            } else {
+            } else if (content === 'Carrier', 'Battleship', 'Cruiser', 'Submarine', 'Destroyer') {
                 cell.classList.add('ship-cell');
             }
 
@@ -111,25 +111,22 @@ export function renderBoard(gameboard, boardElement, gameState) {
     boardElement.appendChild(grid);
 }
 
-// Event handler for cell click (attack input)
-function handleCellClick(coordinates, gameState) {
-    console.log('Cell clicked:', coordinates);
 
+// Event handler for cell click (attack input)
+export function handleCellClick(coordinates, gameState) {
+    console.log('Cell clicked:', coordinates);
     const playerBoard = gameState.player1.gameboard.playerGrid;
     const opponentBoard = gameState.player1.gameboard.enemyGrid;
     
-    // Calls takeUserInput to handle the attack in the game state
     gameState.takeUserInput(coordinates, gameState); 
 
-    // Update the UI with the latest game state
     renderBoard(opponentBoard, document.getElementById('opponentBoard'), gameState);
     renderBoard(playerBoard, document.getElementById('playerBoard'), gameState);
-
+    
     updateScoreboard(gameState);
-    console.log('Updated gameState:', gameState);
 }
 
-function updateScoreboard(gameState) {
+export function updateScoreboard(gameState) {
     const scoreBoard = document.querySelector('#scoreBoard');
     scoreBoard.innerHTML = `
         <h3>Player 1: ${gameState.player1.gameboard.getRemainingShips()} Ships Remaining</h3>
