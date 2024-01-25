@@ -14,23 +14,21 @@ export class Player {
     }
 
     // Method to make a move
-    makeMove(coordinates) {
+    makeMove(coordinates, gameState) {
       console.log('Making move:', coordinates);
-      console.log('Before receiveAttack - Game state:', this.gameboard);
 
       if (this.isHuman) {
         // For human player, coordinates are provided as input
-        console.log('Human player attacking. Gameboard:', this.gameboard);
-        this.gameboard.receiveAttack(coordinates, true);
+        console.log('Human player attacking...', gameState);
+        gameState.player2.gameboard.receiveAttack(coordinates, gameState, true);
+        gameState.player1.gameboard.receiveAttack(coordinates, gameState, true);
       } else {
         // For computer player, generate random legal coordinates
-        console.log('Computer player attacking. Gameboard:', this.gameboard);
+        console.log('Computer player attacking...', gameState);
         const randomCoords = this.genRandomCoords();
-        this.gameboard.receiveAttack(randomCoords, false);
+        gameState.player1.gameboard.receiveAttack(randomCoords, gameState, false);
+        gameState.player2.gameboard.receiveAttack(randomCoords, gameState, false); // Update player1's game board
       }
-
-      console.log('After receiveAttack - Game state:', this.gameboard);
-
     }
 
     // Helper function for computer player to generate random legal coordinates

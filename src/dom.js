@@ -1,6 +1,7 @@
 // DOM Module
 
 import { Gameboard } from "./board"
+import { hello } from "./hello"
 import { GameState } from "./state"
 import { Ship } from "./ship";
 
@@ -8,11 +9,8 @@ import { Ship } from "./ship";
 
 export function loadUI(gameState) {
     console.log('Loading UI...');
-    console.log('Game state at UI load:', gameState);
 
-    const gameTray = document.getElementById('gameTray');
-    const initBtn = document.getElementById('initBtn');
-    initBtn.innerHTML = 'Reset'
+    initBtn.classList.add('hidden');
 
     // Scoreboard
     const scoreBoard = document.createElement('div');
@@ -31,6 +29,7 @@ export function loadUI(gameState) {
     const oppTitle = document.createElement('h4');
 
     // Set up player and opponent boards
+    action.id = 'gameAction';
     playerBoard.id = 'playerBoard';
     playerTitle.id = 'playerTitle';
     opponentBoard.id = 'opponentBoard';
@@ -49,13 +48,13 @@ export function loadUI(gameState) {
     gameTray.appendChild(scoreBoard);
     gameTray.appendChild(action);
 
-    // Initialize game state and boards
-    const playerGameboard = gameState.player1.gameboard;
-    const opponentGameboard = gameState.player2.gameboard;
+    // Declare grid object data for UI
+    const opponentGameboard = gameState.player1.gameboard.enemyGrid;
+    const playerGameboard = gameState.player1.gameboard.playerGrid;
 
     // Render player and opponent boards
-    renderBoard(playerGameboard, playerBoard, gameState);
     renderBoard(opponentGameboard, opponentBoard, gameState);
+    renderBoard(playerGameboard, playerBoard, gameState);
 }
 
 // Helper function to render the game board
@@ -68,7 +67,7 @@ export function renderBoard(gameboard, boardElement, gameState) {
     xAxisRow.appendChild(document.createElement('th')); // Empty corner cell
     for (let i = 0; i < 10; i++) {
         const cell = document.createElement('th');
-        cell.textContent = String.fromCharCode('A'.charCodeAt(0) + i);
+        cell.textContent = i + 1;
         xAxisRow.appendChild(cell);
     }
     grid.appendChild(xAxisRow);
@@ -76,15 +75,16 @@ export function renderBoard(gameboard, boardElement, gameState) {
     for (let i = 0; i < 10; i++) {
         const row = document.createElement('tr');
         const yAxisCell = document.createElement('td');
-        yAxisCell.textContent = i + 1;
+        yAxisCell.textContent = String.fromCharCode('A'.charCodeAt(0) + i);
         row.appendChild(yAxisCell);
 
         for (let j = 0; j < 10; j++) {
             const cell = document.createElement('td');
             const coordinates = `${String.fromCharCode('A'.charCodeAt(0) + i)}${j + 1}`;
-            
-            const content = gameboard.playerGrid[i][j].content;
-            // Set cell color based on content
+
+            const content = gameboard[i][j].content;
+    
+            // Set cell color based on status
             if (content === null) {
                 cell.classList.add('water-cell');
             } else if (content === 'hit') {
@@ -107,18 +107,23 @@ export function renderBoard(gameboard, boardElement, gameState) {
     }
 
     // Add the grid to the board element
+    console.log('Rendering...', gameState);
     boardElement.appendChild(grid);
 }
 
 // Event handler for cell click (attack input)
 function handleCellClick(coordinates, gameState) {
     console.log('Cell clicked:', coordinates);
+
+    const playerBoard = gameState.player1.gameboard.playerGrid;
+    const opponentBoard = gameState.player1.gameboard.enemyGrid;
+    
     // Calls takeUserInput to handle the attack in the game state
     gameState.takeUserInput(coordinates, gameState); 
 
     // Update the UI with the latest game state
-    renderBoard(gameState.player1.gameboard, document.getElementById('playerBoard'));
-    renderBoard(gameState.player2.gameboard, document.getElementById('opponentBoard'));
+    renderBoard(opponentBoard, document.getElementById('opponentBoard'), gameState);
+    renderBoard(playerBoard, document.getElementById('playerBoard'), gameState);
 
     updateScoreboard(gameState);
     console.log('Updated gameState:', gameState);

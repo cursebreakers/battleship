@@ -1,6 +1,6 @@
 // Gameboard module
 
-import { Ship, genFleet } from "./ship";
+import { Ship, fleet, genFleet } from "./ship";
 
 // CLASS/factory for gameboard
 export default class Gameboard {
@@ -69,21 +69,19 @@ export default class Gameboard {
     }
   
     // Method to receive an attack
-    receiveAttack(coordinates, isHuman) {
-      console.log('Receiving attack:', coordinates);
+    receiveAttack(coordinates, gameState, isHuman) {
       // Extract row and column indices from the attack coordinates
       const rowIndex = coordinates.charCodeAt(0) - 'A'.charCodeAt(0);
       const colIndex = parseInt(coordinates.slice(1), 10) - 1;
-      // Determine which grid to target based on the player type
-      const targetEnemyGrid = isHuman ? this.playerGrid : this.enemyGrid;
-      const targetPlayerGrid = isHuman ? this.enemyGrid : this.playerGrid;
-
-      console.log('isHuman:', isHuman);
-      console.log('targetEnemyGrid:', targetEnemyGrid);
-      console.log('targetPlayerGrid:', targetPlayerGrid);
+      
+      const attackerGameboard = isHuman ? gameState.player1.gameboard : gameState.player2.gameboard;
+      const targetGameboard = isHuman ? gameState.player2.gameboard : gameState.player1.gameboard;
+      
+      console.log('isHuman:', isHuman, 'Attacks from: ', attackerGameboard.enemyGrid);
+      console.log('Attack received at cell:', coordinates, targetGameboard.playerGrid);
 
       // Check if there is a ship at the attacked coordinates
-      const cellContent = targetEnemyGrid[rowIndex][colIndex].content;
+      const cellContent = targetGameboard.playerGrid[rowIndex][colIndex].content;
 
       console.log('Cell content:', cellContent);
 
@@ -91,7 +89,8 @@ export default class Gameboard {
         // Ship is hit
         const ship = this.findShipByType(cellContent);
         ship.hit();
-        targetEnemyGrid[rowIndex][colIndex].content = 'hit';
+        console.log('Ship: ', ship);
+        targetGameboard.playerGrid[rowIndex][colIndex].content = 'hit';
 
         if (ship.isSunk()) {
           // Report that the ship has been sunk
@@ -101,30 +100,29 @@ export default class Gameboard {
       } else {
         // Record coordinates of missed shot
         this.missedAttacks.push(coordinates);
-        targetEnemyGrid[rowIndex][colIndex].content = 'miss';
+        targetGameboard.playerGrid[rowIndex][colIndex].content = 'miss';
       }
 
-      const playerCellContent = targetPlayerGrid[rowIndex][colIndex].content;
+      const attackerCellContent = attackerGameboard.enemyGrid[rowIndex][colIndex].content;
 
-      if (playerCellContent) {
+      if (attackerCellContent) {
         // Ship is hit on the player's grid
-        // Perform any additional actions needed for hits on the player's grid
-        const playerShip = this.findShipByType(playerCellContent);
-        playerShip.hit();
-        targetPlayerGrid[rowIndex][colIndex].content = 'hit';
+        const attackerShip = targetGameboard.findShipByType(attackerCellContent);
+        attackerShip.hit();
+        attackerGameboard.enemyGrid[rowIndex][colIndex].content = 'hit';
 
-        if (playerShip.isSunk()) {
+        if (attackerShip.isSunk()) {
           // Report that the player's ship has been sunk
-          console.log(`${playerShip.type} on player's grid sunk!`);
+          console.log(`${attackerShip.type} on attacker's grid sunk!`);
         }
       } else {
         // Record coordinates of missed shot on the player's grid
         this.missedAttacks.push(coordinates);
-        targetPlayerGrid[rowIndex][colIndex].content = 'miss';
+        attackerGameboard.enemyGrid[rowIndex][colIndex].content = 'miss';
       }
 
       // Check if all ships have been sunk
-      if (this.areAllShipsSunk()) {
+      if (targetGameboard.areAllShipsSunk()) {
         // Report that all ships have been sunk
         console.log('All ships have been sunk! Game over.');
       }
@@ -134,30 +132,21 @@ export default class Gameboard {
       return this.ships.filter(ship => !ship.isSunk()).length;
   }
 
-    // Helper function to find a ship by its type
+     // Helper function to find a ship by its type
     findShipByType(shipType) {
-      const allShips = [
-        new Ship('Carrier', 5),
-        new Ship('Battleship', 4),
-        new Ship('Cruiser', 3),
-        new Ship('Submarine', 3),
-        new Ship('Destroyer', 2)
-    ];
+      const ship = this.ships.find(ship => ship.type === shipType);
 
-    return allShips.find(ship => ship.type === shipType);
-  }
+      if (ship) {
+        return ship;
+      } else {
+        console.error(`Ship with type ${shipType} not found.`);
+        return null; // or handle the error accordingly
+      }
+    }
 
     // Helper function to check if all ships have been sunk
     areAllShipsSunk() {
-      const allShips = [
-        new Ship('Carrier', 5),
-        new Ship('Battleship', 4),
-        new Ship('Cruiser', 3),
-        new Ship('Submarine', 3),
-        new Ship('Destroyer', 2)
-    ];
-
-    return allShips.every(ship => ship.isSunk());
+      const allShips = fleet.map(({ type, length }) => new Ship(type, length));
+      return allShips.every(ship => ship.isSunk());
   }
 }
-  

@@ -12,6 +12,15 @@ button {
     color: #000000;
 }
 
+
+td {
+    min-height: 20px;
+    min-width: 20px;
+    max-height: 26px;
+    max-width: 26px;
+
+}
+
 .water-cell {
     background-color: aqua;
     color: #000000;
@@ -32,3 +41,6 @@ button {
     color: #FFFFFF;
 }
 
+.hidden {
+    display: none;
+}

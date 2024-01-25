@@ -28,9 +28,9 @@ export class GameState {
   takeUserInput(coordinates, gameState) {
     console.log('Taking user input...');
     console.log('Game state upon input:', gameState); // Log the entire gameState object
-    console.log('Current player upon input:', gameState.currentPlayer);
+
     // Delegate input handling to the current player
-    this.currentPlayer.makeMove(coordinates);
+    gameState.currentPlayer.makeMove(coordinates, gameState);
 
     // Check if the game is over
     if (this.checkGameOver()) {
@@ -39,7 +39,8 @@ export class GameState {
     } else {
       // Switch to the next player for the next turn
       this.switchPlayer();
-      console.log('Current player upon switch:', gameState.currentPlayer);
+      console.log('Updated gameState (turn change):', gameState);
+      console.log('Player after switch:', gameState.currentPlayer);
 
       this.turnNumber++;
     }
